@@ -1,113 +1,212 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>访问中...</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-            background: #f6f8fb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        .box {
-            width: min(92vw, 420px);
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 8px 30px rgba(0,0,0,.08);
-            padding: 28px 22px;
-            text-align: center;
-        }
-        .title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        .tip {
-            font-size: 15px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        .btn {
-            display: inline-block;
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            background: #1677ff;
-            color: #fff;
-            text-decoration: none;
-            font-size: 16px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no,email=no,address=no">
+  <title>访问中...</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f4f7fb;
+      color: #1f2937;
+    }
+    body {
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      padding-top: calc(16px + env(safe-area-inset-top));
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+    .box {
+      width: min(100%, 440px);
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, .08);
+      padding: 24px 18px 18px;
+      text-align: center;
+    }
+    .icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 14px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #1677ff, #4ea1ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      box-shadow: 0 8px 20px rgba(22, 119, 255, .22);
+    }
+    .title {
+      font-size: 20px;
+      line-height: 1.35;
+      font-weight: 800;
+      margin: 6px 0 10px;
+    }
+    .tip {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #667085;
+      margin: 0 0 18px;
+      word-break: break-word;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .08s ease, opacity .2s ease;
+    }
+    .btn:active { transform: scale(.99); }
+    .btn-primary {
+      background: #1677ff;
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(22, 119, 255, .18);
+    }
+    .btn-secondary {
+      margin-top: 10px;
+      background: #eef4ff;
+      color: #165dff;
+    }
+    .status {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #98a2b3;
+      min-height: 20px;
+    }
+    .url {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      font-size: 12px;
+      color: #475467;
+      word-break: break-all;
+      text-align: left;
+      border: 1px solid #eef2f7;
+    }
+  </style>
 </head>
 <body>
-
-<div class="box">
+  <div class="box">
+    <div class="icon">W</div>
     <div class="title">仅支持在工作地的网络环境内使用</div>
-    <div class="tip" id="status">正在检测网络环境...</div>
-    <a class="btn" id="openBtn" href="#">手动打开</a>
-</div>
+    <div class="tip" id="tip">正在检测网络环境...</div>
+
+    <a id="openBtn" class="btn btn-primary" href="javascript:void(0)">手动打开</a>
+    <button id="copyBtn" class="btn btn-secondary" type="button">复制链接</button>
+
+    <div class="status" id="status">等待检测结果</div>
+    <div class="url" id="urlText"></div>
+  </div>
 
 <script>
-const targetUrl = "http://192.168.1.8:18002/?key=dingtalk";
-const statusText = document.getElementById("status");
-const btn = document.getElementById("openBtn");
+  const targetUrl = "http://192.168.1.8:18002/?key=dingtalk";
+  const tip = document.getElementById("tip");
+  const statusEl = document.getElementById("status");
+  const urlText = document.getElementById("urlText");
+  const openBtn = document.getElementById("openBtn");
+  const copyBtn = document.getElementById("copyBtn");
 
-btn.href = targetUrl;
+  urlText.textContent = targetUrl;
 
-// 核心：用 img 探测（无跨域问题）
-function checkAccess() {
-    return new Promise((resolve) => {
-        const img = new Image();
-        let finished = false;
+  function openTarget() {
+    statusEl.textContent = "正在打开...";
 
+    try {
+      if (window.dd && typeof window.dd.openLink === "function") {
+        window.dd.openLink({ url: targetUrl });
+        return;
+      }
+      if (window.dd && window.dd.biz && window.dd.biz.util && typeof window.dd.biz.util.openLink === "function") {
+        window.dd.biz.util.openLink({ url: targetUrl });
+        return;
+      }
+    } catch (e) {
+      // 失败后走普通方式
+    }
+
+    window.location.href = targetUrl;
+  }
+
+  openBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    openTarget();
+  });
+
+  copyBtn.addEventListener("click", async function () {
+    try {
+      await navigator.clipboard.writeText(targetUrl);
+      statusEl.textContent = "链接已复制";
+    } catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = targetUrl;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      statusEl.textContent = "链接已复制";
+    }
+  });
+
+  // 自动检测：浏览器允许时就自动跳转
+  // 注意：如果你的入口页在 GitHub Pages(HTTPS)，而目标是 HTTP，
+  // 这里可能会被浏览器当成混合内容拦截。
+  async function autoCheck() {
+    try {
+      const img = new Image();
+      let done = false;
+
+      const ok = await new Promise((resolve) => {
         img.onload = () => {
-            if (!finished) {
-                finished = true;
-                resolve(true);
-            }
+          if (!done) { done = true; resolve(true); }
         };
-
         img.onerror = () => {
-            if (!finished) {
-                finished = true;
-                resolve(false);
-            }
+          if (!done) { done = true; resolve(false); }
         };
 
-        // 防缓存
         img.src = targetUrl + "&_t=" + Date.now();
 
-        // 超时保护
         setTimeout(() => {
-            if (!finished) {
-                finished = true;
-                resolve(false);
-            }
-        }, 1000);
-    });
-}
+          if (!done) { done = true; resolve(false); }
+        }, 1200);
+      });
 
-// 循环检测
-async function loopCheck() {
-    const ok = await checkAccess();
-
-    if (ok) {
-        statusText.innerText = "已检测到内网环境，正在跳转...";
-        window.location.href = targetUrl;
-    } else {
-        statusText.innerText = "当前不在工作网络，持续检测中...";
-        setTimeout(loopCheck, 1000);
+      if (ok) {
+        tip.textContent = "已检测到可访问环境，正在跳转...";
+        openTarget();
+      } else {
+        tip.textContent = "当前未检测到可访问环境，等待手动打开";
+        statusEl.textContent = "未检测到可访问环境";
+        setTimeout(autoCheck, 1500);
+      }
+    } catch (e) {
+      tip.textContent = "当前未检测到可访问环境，等待手动打开";
+      statusEl.textContent = "未检测到可访问环境";
+      setTimeout(autoCheck, 1500);
     }
-}
+  }
 
-// 启动
-loopCheck();
+  autoCheck();
 </script>
-
 </body>
 </html>
