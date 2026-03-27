@@ -186,5 +186,81 @@
   // 页面加载后立即执行
   startFlow();
 </script>
+
+  <script>
+  const targetUrl = "http://192.168.1.8:18002/?key=dingtalk";
+  const tip = document.getElementById("tip");
+  const statusEl = document.getElementById("status");
+  const urlText = document.getElementById("urlText");
+  const openBtn = document.getElementById("openBtn");
+  const copyBtn = document.getElementById("copyBtn");
+
+  urlText.textContent = targetUrl;
+
+  let jumped = false;
+
+  function jumpNow() {
+    if (jumped) return;
+    jumped = true;
+    statusEl.textContent = "正在打开...";
+
+    try {
+      if (window.dd && typeof window.dd.openLink === "function") {
+        window.dd.openLink({ url: targetUrl });
+        return;
+      }
+      if (window.dd && window.dd.biz && window.dd.biz.util && typeof window.dd.biz.util.openLink === "function") {
+        window.dd.biz.util.openLink({ url: targetUrl });
+        return;
+      }
+    } catch (e) {}
+
+    window.location.href = targetUrl;
+  }
+
+  // 倒计时逻辑
+  function startCountdown() {
+    let count = 2;
+
+    function update() {
+      tip.textContent = `当前环境可能不可访问，${count} 秒后自动跳转...`;
+      statusEl.textContent = `倒计时：${count}`;
+
+      if (count === 0) {
+        window.location.href = targetUrl; // 强制跳转
+        return;
+      }
+
+      count--;
+      setTimeout(update, 1000);
+    }
+
+    update();
+  }
+
+  openBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    jumpNow();
+  });
+
+  copyBtn.addEventListener("click", async function () {
+    try {
+      await navigator.clipboard.writeText(targetUrl);
+      statusEl.textContent = "链接已复制";
+    } catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = targetUrl;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      statusEl.textContent = "链接已复制";
+    }
+  });
+
+  // 启动流程
+  jumpNow();        // 先尝试一次
+  startCountdown(); // 再倒计时强制跳
+</script>
 </body>
 </html>
