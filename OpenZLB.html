@@ -110,12 +110,12 @@
   <div class="box">
     <div class="icon">W</div>
     <div class="title">仅支持在工作地的网络环境内使用</div>
-    <div class="tip" id="tip">正在检测网络环境...</div>
+    <div class="tip" id="tip">页面将先尝试打开，2 秒后将自动跳转。</div>
 
     <a id="openBtn" class="btn btn-primary" href="javascript:void(0)">手动打开</a>
     <button id="copyBtn" class="btn btn-secondary" type="button">复制链接</button>
 
-    <div class="status" id="status">等待检测结果</div>
+    <div class="status" id="status">等待跳转...</div>
     <div class="url" id="urlText"></div>
   </div>
 
@@ -129,9 +129,14 @@
 
   urlText.textContent = targetUrl;
 
-  function openTarget() {
-    statusEl.textContent = "正在打开...";
+  let jumped = false;
+  let fallbackTimer = null;
 
+  function jumpNow() {
+    if (jumped) return;
+    jumped = true;
+    statusEl.textContent = "正在打开...";
+    
     try {
       if (window.dd && typeof window.dd.openLink === "function") {
         window.dd.openLink({ url: targetUrl });
@@ -141,16 +146,26 @@
         window.dd.biz.util.openLink({ url: targetUrl });
         return;
       }
-    } catch (e) {
-      // 失败后走普通方式
-    }
+    } catch (e) {}
 
     window.location.href = targetUrl;
   }
 
+  function startFlow() {
+    // 先尝试立刻打开
+    jumpNow();
+
+    // 2 秒后无条件再跳一次，确保进入
+    fallbackTimer = setTimeout(() => {
+      if (!jumped) {
+        window.location.href = targetUrl;
+      }
+    }, 2000);
+  }
+
   openBtn.addEventListener("click", function (e) {
     e.preventDefault();
-    openTarget();
+    jumpNow();
   });
 
   copyBtn.addEventListener("click", async function () {
@@ -168,45 +183,8 @@
     }
   });
 
-  // 自动检测：浏览器允许时就自动跳转
-  // 注意：如果你的入口页在 GitHub Pages(HTTPS)，而目标是 HTTP，
-  // 这里可能会被浏览器当成混合内容拦截。
-  async function autoCheck() {
-    try {
-      const img = new Image();
-      let done = false;
-
-      const ok = await new Promise((resolve) => {
-        img.onload = () => {
-          if (!done) { done = true; resolve(true); }
-        };
-        img.onerror = () => {
-          if (!done) { done = true; resolve(false); }
-        };
-
-        img.src = targetUrl + "&_t=" + Date.now();
-
-        setTimeout(() => {
-          if (!done) { done = true; resolve(false); }
-        }, 1200);
-      });
-
-      if (ok) {
-        tip.textContent = "已检测到可访问环境，正在跳转...";
-        openTarget();
-      } else {
-        tip.textContent = "当前未检测到可访问环境，等待手动打开";
-        statusEl.textContent = "未检测到可访问环境";
-        setTimeout(autoCheck, 1500);
-      }
-    } catch (e) {
-      tip.textContent = "当前未检测到可访问环境，等待手动打开";
-      statusEl.textContent = "未检测到可访问环境";
-      setTimeout(autoCheck, 1500);
-    }
-  }
-
-  autoCheck();
+  // 页面加载后立即执行
+  startFlow();
 </script>
 </body>
 </html>
