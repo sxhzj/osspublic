@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>访问中...</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f6f8fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .box {
+            width: min(92vw, 420px);
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.08);
+            padding: 28px 22px;
+            text-align: center;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .tip {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background: #1677ff;
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <div class="title">仅支持在工作地的网络环境内使用</div>
+    <div class="tip" id="status">正在检测网络环境...</div>
+    <a class="btn" id="openBtn" href="#">手动打开</a>
+</div>
+
+<script>
+const targetUrl = "http://192.168.1.8:18002/?key=dingtalk";
+const statusText = document.getElementById("status");
+const btn = document.getElementById("openBtn");
+
+btn.href = targetUrl;
+
+// 核心：用 img 探测（无跨域问题）
+function checkAccess() {
+    return new Promise((resolve) => {
+        const img = new Image();
+        let finished = false;
+
+        img.onload = () => {
+            if (!finished) {
+                finished = true;
+                resolve(true);
+            }
+        };
+
+        img.onerror = () => {
+            if (!finished) {
+                finished = true;
+                resolve(false);
+            }
+        };
+
+        // 防缓存
+        img.src = targetUrl + "&_t=" + Date.now();
+
+        // 超时保护
+        setTimeout(() => {
+            if (!finished) {
+                finished = true;
+                resolve(false);
+            }
+        }, 1000);
+    });
+}
+
+// 循环检测
+async function loopCheck() {
+    const ok = await checkAccess();
+
+    if (ok) {
+        statusText.innerText = "已检测到内网环境，正在跳转...";
+        window.location.href = targetUrl;
+    } else {
+        statusText.innerText = "当前不在工作网络，持续检测中...";
+        setTimeout(loopCheck, 1000);
+    }
+}
+
+// 启动
+loopCheck();
+</script>
+
+</body>
+</html>
