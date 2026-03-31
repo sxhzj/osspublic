@@ -6,260 +6,372 @@
 <title>充电时间计算器</title>
 <style>
 :root{
-  --bg:#0f1724;
-  --card:#0b1220;
-  --accent:#06f;
-  --muted:#9aa4b2;
-  --glass:rgba(255,255,255,0.04);
+  --bg1:#07111f;
+  --bg2:#0b1730;
+  --card:#0f1b2f;
+  --card2:#13233d;
+  --line:rgba(255,255,255,.08);
+  --text:#eaf2ff;
+  --muted:#9fb0c6;
+  --accent:#4ea1ff;
+  --accent2:#6c7dff;
+  --good:#35d07f;
+  --warn:#ffb74d;
+  --shadow:0 10px 30px rgba(0,0,0,.28);
 }
+
 *{box-sizing:border-box}
 html,body{
-  height:100%;
   margin:0;
-  font-family:system-ui,-apple-system,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
-  background:linear-gradient(180deg,#071022 0%,#081426 100%);
-  color:#e6eef6;
+  height:100%;
+  overflow:hidden;
+  font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",Arial,sans-serif;
+  background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  color:var(--text);
 }
+
 .container{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  height:100dvh;
   padding:8px;
-}
-.card{
-  width:100%;
-  max-width:420px;
-  height:calc(100vh - 16px);
-  background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));
-  border-radius:12px;
-  padding:10px;
   display:flex;
-  flex-direction:column;
+  align-items:stretch;
+  justify-content:center;
+}
+
+.card{
+  width:min(100%,460px);
+  height:100%;
+  display:grid;
+  grid-template-rows:auto auto auto 1fr auto;
   gap:8px;
-  box-shadow:0 8px 30px rgba(2,6,23,0.6);
+  padding:10px;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));
+  box-shadow:var(--shadow);
   overflow:hidden;
 }
+
 .header{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
+  gap:10px;
 }
+
 .title{
-  font-weight:700;
-  font-size:15px;
+  font-size:clamp(16px,4vw,19px);
+  font-weight:800;
+  line-height:1.15;
 }
-.small{
+
+.sub{
+  margin-top:4px;
   font-size:11px;
   color:var(--muted);
+  line-height:1.35;
 }
+
+.badge{
+  font-size:11px;
+  padding:6px 8px;
+  border-radius:999px;
+  background:rgba(78,161,255,.12);
+  border:1px solid rgba(78,161,255,.22);
+  color:#cfe4ff;
+  white-space:nowrap;
+}
+
 .form{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:8px;
+  align-items:end;
+}
+
+.full{grid-column:1 / -1}
+
+label{
+  font-size:11px;
+  color:var(--muted);
+  display:block;
+  margin:0 0 5px 0;
+}
+
+input[type="number"]{
+  width:100%;
+  border:none;
+  outline:none;
+  color:var(--text);
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  padding:10px 11px;
+  font-size:15px;
+}
+
+.sliderBox{
+  padding:8px 9px 9px;
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);
+}
+
+.sliderTop{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:12px;
+  color:#d6e3f4;
+  margin-bottom:4px;
+}
+
+.sliderTop span{
+  color:var(--accent);
+  font-weight:700;
+}
+
+input[type="range"]{
+  width:100%;
+  margin:0;
+  accent-color:var(--accent);
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
   align-items:center;
 }
-.form .full{grid-column:1/3}
-input[type=number], input[type=range], button{
-  border:0;
+
+button{
+  border:none;
   outline:none;
-}
-input[type=number]{
-  width:100%;
-  padding:8px;
-  border-radius:8px;
-  background:rgba(255,255,255,0.03);
-  color:inherit;
-  font-size:14px;
-  border:1px solid rgba(255,255,255,0.03);
-}
-.sliderWrap{
-  grid-column:1/3;
-  padding:6px 8px;
-  border-radius:8px;
-  background:rgba(255,255,255,0.02);
-  display:flex;
-  flex-direction:column;
-}
-input[type=range]{
-  -webkit-appearance:none;
-  width:100%;
-  height:28px;
-  background:transparent;
-}
-input[type=range]::-webkit-slider-runnable-track{
-  height:4px;
-  background:linear-gradient(90deg,var(--accent),#6cf);
-  border-radius:8px;
-}
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;
-  width:16px;
-  height:16px;
-  border-radius:50%;
-  background:#fff;
-  border:2px solid var(--accent);
-  margin-top:-6px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.4);
-}
-.btn{
-  grid-column:1/3;
-  padding:10px;
-  border-radius:10px;
-  background:linear-gradient(90deg,var(--accent),#66f);
-  color:#021027;
-  font-weight:700;
+  border-radius:12px;
+  padding:11px 14px;
   font-size:15px;
+  font-weight:800;
   cursor:pointer;
 }
-.note{
-  font-size:12px;
+
+.btn{
+  color:#03111e;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  box-shadow:0 8px 20px rgba(78,161,255,.25);
+}
+
+.btn:active{transform:translateY(1px)}
+
+.tip{
+  font-size:11px;
   color:var(--muted);
-  text-align:center;
-  padding-top:4px;
+  text-align:right;
+  line-height:1.35;
 }
-.resultOverlay{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(180deg,rgba(2,6,23,0.6),rgba(2,6,23,0.85));
-  backdrop-filter:blur(4px);
-  z-index:999;
+
+.results{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  align-content:start;
 }
-.resultCard{
-  width:92%;
-  max-width:420px;
-  background:linear-gradient(180deg,#ffffff11,#ffffff08);
+
+.panel{
+  padding:9px 10px;
   border-radius:12px;
-  padding:12px;
-  color:#e8f6ff;
-  border:1px solid rgba(255,255,255,0.06);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));
+  border:1px solid var(--line);
+  min-height:62px;
 }
+
+.panel.big{
+  grid-column:1 / -1;
+}
+
+.panelTitle{
+  font-size:11px;
+  color:var(--muted);
+  margin-bottom:5px;
+}
+
+.panelValue{
+  font-size:18px;
+  font-weight:900;
+  line-height:1.1;
+  word-break:break-word;
+}
+
+.panelValue.small{
+  font-size:14px;
+  font-weight:800;
+}
+
 .kv{
   display:flex;
   justify-content:space-between;
   gap:10px;
-  font-size:13px;
+  font-size:12px;
   padding:6px 0;
-  border-bottom:1px dashed rgba(255,255,255,0.08);
+  border-bottom:1px dashed rgba(255,255,255,.08);
+  line-height:1.25;
 }
-.kv:last-child{border-bottom:0}
-.closeBtn{
-  margin-top:10px;
-  padding:8px;
-  border-radius:8px;
-  background:#fff;
-  color:#022;
-  font-weight:700;
-  width:100%;
-  cursor:pointer;
-}
+
+.kv:last-child{border-bottom:none}
+
 .footer{
-  margin-top:auto;
   font-size:11px;
   color:var(--muted);
   text-align:center;
-  padding-bottom:4px;
+  line-height:1.35;
+  padding-top:2px;
 }
+
 .errorBar{
   position:fixed;
   left:8px;
   right:8px;
   bottom:10px;
-  background:#ffebee;
-  color:#611;
-  padding:8px;
-  border-radius:8px;
-  text-align:center;
-  font-size:13px;
+  z-index:999;
   display:none;
-  z-index:1000;
+  padding:9px 10px;
+  border-radius:10px;
+  background:#ffecec;
+  color:#7a1d1d;
+  font-size:13px;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,.18);
 }
-@media (max-width:380px){
-  .card{padding:8px;height:100vh}
+
+@media (max-width:390px){
+  .card{padding:9px; gap:7px; border-radius:14px;}
+  input[type="number"]{padding:9px 10px; font-size:14px;}
+  .panelValue{font-size:16px;}
+  .panel{min-height:56px; padding:8px 9px;}
+  .footer{font-size:10px;}
 }
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="card" role="main" aria-labelledby="title">
+  <div class="card">
     <div class="header">
       <div>
-        <div id="title" class="title">🔋 充电时间计算器</div>
+        <div class="title">🔋 充电时间计算器</div>
+        
       </div>
+      
     </div>
 
-    <form id="calcForm" style="display:block">
-      <div class="form">
-        <label class="full small">电池总容量 (kWh)</label>
-        <input class="full" type="number" id="capacity" step="0.1" min="0.1" value="52.3" required>
+    <form id="calcForm" class="form">
+      <div>
+        <label for="capacity">电池总容量 (kWh)</label>
+        <input type="number" id="capacity" step="0.1" min="0.1" value="52.3" required>
+      </div>
+      <div>
+        <label for="power">充电功率 (kW)</label>
+        <input type="number" id="power" step="0.1" min="0.1" value="6.0" required>
+      </div>
 
-        <label class="full small">充电功率 (kW)</label>
-        <input class="full" type="number" id="power" step="0.1" min="0.1" value="6.0" required>
+      <div>
+        <label for="currentInput">当前电量 (%)</label>
+        <input type="number" id="currentInput" step="0.1" min="0" max="100" value="20">
+      </div>
+      <div>
+        <label for="targetInput">目标电量 (%)</label>
+        <input type="number" id="targetInput" step="0.1" min="0" max="100" value="100">
+      </div>
 
-        <label class="small">当前电量 (%)</label>
-        <label class="small" style="text-align:right">目标电量 (%)</label>
-
-        <input id="currentInput" type="number" step="1" min="0" max="100" value="20">
-        <input id="targetInput" type="number" step="1" min="0" max="100" value="100">
-
-        <div class="sliderWrap full">
-          <div style="margin-bottom:6px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between">
-            <div>当前电量 <span id="currentValue">20%</span></div>
-            <div>目标电量 <span id="targetValue">100%</span></div>
-          </div>
-          <input id="currentRange" type="range" min="0" max="100" step="1" value="20">
-          <input id="targetRange" type="range" min="0" max="100" step="1" value="100" style="margin-top:8px">
+      <div class="full sliderBox">
+        <div class="sliderTop">
+          <div>当前电量 <span id="currentValue">20%</span></div>
+          <div>目标电量 <span id="targetValue">100%</span></div>
         </div>
+        <input id="currentRange" type="range" min="0" max="100" step="1" value="20">
+        <input id="targetRange" type="range" min="0" max="100" step="1" value="100" style="margin-top:8px">
+      </div>
 
+      <div class="full actions">
         <button class="btn" type="submit">计算</button>
+        <div class="tip">输入后点计算<br>结果会直接显示在下面</div>
       </div>
     </form>
 
-    <div class="footer">纯 HTML 实现 · 计算结果以覆盖层方式显示</div>
-  </div>
-</div>
+    <div id="results" class="results">
+      <div class="panel">
+        <div class="panelTitle">当前电量可开公里数</div>
+        <div id="currentKm" class="panelValue">-- km</div>
+      </div>
+      <div class="panel">
+        <div class="panelTitle">目标电量可开公里数</div>
+        <div id="targetKm" class="panelValue">-- km</div>
+      </div>
 
-<div id="overlay" class="resultOverlay" role="dialog" aria-modal="true">
-  <div class="resultCard">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="font-weight:800">计算结果</div>
-      <div id="nowText" style="font-size:12px;color:var(--muted)"></div>
+      <div class="panel">
+        <div class="panelTitle">需要补电量</div>
+        <div id="needKwh" class="panelValue">-- kWh</div>
+      </div>
+      <div class="panel">
+        <div class="panelTitle">需要充电时长</div>
+        <div id="needTime" class="panelValue">--</div>
+      </div>
+
+      
     </div>
 
-    <div id="resultBody" style="margin-top:6px;"></div>
-
-    <button class="closeBtn" onclick="closeOverlay()">关闭</button>
+    
   </div>
 </div>
 
 <div id="errorBar" class="errorBar"></div>
 
 <script>
+  function refreshAll() {
+  syncInputs();
+  calculate();
+}
 const capacityInput = document.getElementById('capacity');
 const powerInput = document.getElementById('power');
-
 const currentInput = document.getElementById('currentInput');
-const currentRange = document.getElementById('currentRange');
-const currentValue = document.getElementById('currentValue');
-
 const targetInput = document.getElementById('targetInput');
+const currentRange = document.getElementById('currentRange');
 const targetRange = document.getElementById('targetRange');
+const currentValue = document.getElementById('currentValue');
 const targetValue = document.getElementById('targetValue');
 
-const overlay = document.getElementById('overlay');
-const resultBody = document.getElementById('resultBody');
-const nowText = document.getElementById('nowText');
+const currentKm = document.getElementById('currentKm');
+const targetKm = document.getElementById('targetKm');
+const needKwh = document.getElementById('needKwh');
+const needTime = document.getElementById('needTime');
+const detailBox = document.getElementById('detailBox');
 const errorBar = document.getElementById('errorBar');
 
-function formatPercent(v) {
-  return parseFloat(v).toFixed(1) + '%';
-}
+const BASE_LOW_PERCENT = 21;
+const BASE_LOW_KM = 50;
+const BASE_HIGH_PERCENT = 100;
+const BASE_HIGH_KM = 240;
 
 function clamp(v, min, max) {
   return Math.min(max, Math.max(min, v));
+}
+
+function fmt1(v) {
+  return Number(v).toFixed(1);
+}
+
+function fmt2(v) {
+  return Number(v).toFixed(2);
+}
+
+function fmtKm(v) {
+  return `${Math.round(v)} km`;
+}
+
+function formatDuration(sec) {
+  sec = Math.max(0, Math.floor(sec));
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return `${h}时 ${m}分 ${s}秒`;
 }
 
 function showError(msg) {
@@ -271,123 +383,102 @@ function showError(msg) {
   }, 2500);
 }
 
-currentRange.addEventListener('input', function () {
-  const v = parseFloat(this.value);
-  currentInput.value = v.toFixed(1);
-  currentValue.textContent = formatPercent(v);
-});
+function estimateRangeKm(percent) {
+  const p = Number(percent);
+  if (!isFinite(p)) return NaN;
+  const kmPerPercent = (BASE_HIGH_KM - BASE_LOW_KM) / (BASE_HIGH_PERCENT - BASE_LOW_PERCENT);
+  return BASE_LOW_KM + (p - BASE_LOW_PERCENT) * kmPerPercent;
+}
 
-currentInput.addEventListener('input', function () {
-  let v = parseFloat(this.value);
-  if (!isFinite(v)) v = 0;
-  v = clamp(v, 0, 100);
-  currentRange.value = v;
-  currentValue.textContent = formatPercent(v);
+function updateSliderLabels() {
+  currentValue.textContent = `${fmt1(currentInput.value)}%`;
+  targetValue.textContent = `${fmt1(targetInput.value)}%`;
+}
+
+function syncInputs() {
+  let c = parseFloat(currentInput.value);
+  let t = parseFloat(targetInput.value);
+
+  if (!isFinite(c)) c = 0;
+  if (!isFinite(t)) t = 0;
+
+  c = clamp(c, 0, 100);
+  t = clamp(t, 0, 100);
+
+  currentInput.value = c;
+  targetInput.value = t;
+  currentRange.value = Math.round(c);
+  targetRange.value = Math.round(t);
+
+  updateSliderLabels();
+}
+
+currentRange.addEventListener('input', function () {
+  currentInput.value = this.value;
+  refreshAll();
 });
 
 targetRange.addEventListener('input', function () {
-  const v = parseFloat(this.value);
-  targetInput.value = v.toFixed(1);
-  targetValue.textContent = formatPercent(v);
+  targetInput.value = this.value;
+  refreshAll();
 });
 
-targetInput.addEventListener('input', function () {
-  let v = parseFloat(this.value);
-  if (!isFinite(v)) v = 0;
-  v = clamp(v, 0, 100);
-  targetRange.value = v;
-  targetValue.textContent = formatPercent(v);
-});
+currentInput.addEventListener('input', refreshAll);
+targetInput.addEventListener('input', refreshAll);
 
-function calculateChargeTimeToTarget(capacity, currentPercent, power, targetPercent) {
-  if (capacity <= 0) return { ok:false, message:'电池容量必须大于 0。' };
-  if (power <= 0) return { ok:false, message:'充电功率必须大于 0。' };
-  if (currentPercent < 0 || currentPercent > 100) return { ok:false, message:'当前电量应在 0 到 100 之间。' };
-  if (targetPercent < 0 || targetPercent > 100) return { ok:false, message:'目标电量应在 0 到 100 之间。' };
-  if (targetPercent <= currentPercent) return { ok:true, seconds:0, message:'目标电量不高于当前电量，无需充电。' };
-
-  const neededKwh = capacity * ((targetPercent - currentPercent) / 100.0);
-  if (neededKwh <= 0) return { ok:true, seconds:0, message:'不需要充电。' };
-
-  const seconds = (neededKwh / power) * 3600.0;
-
-  if (!Number.isFinite(seconds) || seconds < 0) return { ok:false, message:'计算结果异常。' };
-  if (seconds > 10 * 365 * 24 * 3600) return { ok:false, message:'计算超时，参数可能异常。' };
-
-  return { ok:true, seconds: Math.round(seconds), message:'计算完成', neededKwh };
-}
-
-function formatDuration(sec) {
-  sec = Math.max(0, Math.floor(sec));
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = sec % 60;
-  return `${h}h ${m}m ${s}s`;
-}
-
-function closeOverlay() {
-  overlay.style.display = 'none';
-}
-
-document.getElementById('calcForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-
+// 这两个你原来没加（很关键）
+capacityInput.addEventListener('input', calculate);
+powerInput.addEventListener('input', calculate);
+  
+function calculate() {
   const capacity = parseFloat(capacityInput.value);
   const power = parseFloat(powerInput.value);
   const currentPercent = parseFloat(currentInput.value);
   const targetPercent = parseFloat(targetInput.value);
 
-  const msgs = [];
-  if (!isFinite(capacity) || capacity <= 0) msgs.push('电池容量必须大于 0。');
-  if (!isFinite(currentPercent) || currentPercent < 0 || currentPercent > 100) msgs.push('当前电量应在 0~100。');
-  if (!isFinite(targetPercent) || targetPercent < 0 || targetPercent > 100) msgs.push('目标电量应在 0~100。');
-  if (!isFinite(power) || power <= 0) msgs.push('充电功率必须大于 0。');
+  const errors = [];
+  if (!isFinite(capacity) || capacity <= 0) errors.push('电池容量必须大于 0。');
+  if (!isFinite(power) || power <= 0) errors.push('充电功率必须大于 0。');
+  if (!isFinite(currentPercent) || currentPercent < 0 || currentPercent > 100) errors.push('当前电量应在 0~100 之间。');
+  if (!isFinite(targetPercent) || targetPercent < 0 || targetPercent > 100) errors.push('目标电量应在 0~100 之间。');
 
-  if (msgs.length) {
-    showError(msgs.join('；'));
+  if (errors.length) {
+    showError(errors.join('；'));
     return;
   }
 
-  const remainingKwh = capacity * (currentPercent / 100.0);
-  const neededKwh = capacity * ((targetPercent - currentPercent) / 100.0);
   const now = new Date();
+  const currentRangeKm = estimateRangeKm(currentPercent);
+  const targetRangeKm = estimateRangeKm(targetPercent);
 
-  nowText.textContent = now.toLocaleString('zh-CN', { hour12:false });
+  const neededKwh = capacity * Math.max(0, (targetPercent - currentPercent) / 100);
+  const seconds = neededKwh <= 0 ? 0 : (neededKwh / power) * 3600;
+  const finishTime = new Date(now.getTime() + seconds * 1000);
 
-  if (neededKwh <= 1e-9) {
-    resultBody.innerHTML = `
-      <div class="kv"><div>状态</div><div>目标电量不高于当前电量或不需要充电。</div></div>
-      <div class="kv"><div>电池容量</div><div>${capacity.toFixed(2)} kWh</div></div>
-      <div class="kv"><div>当前电量</div><div>${currentPercent.toFixed(1)} %</div></div>
-      <div class="kv"><div>目标电量</div><div>${targetPercent.toFixed(1)} %</div></div>
-    `;
-    overlay.style.display = 'flex';
-    return;
-  }
+  currentKm.textContent = fmtKm(currentRangeKm);
+  targetKm.textContent = fmtKm(targetRangeKm);
+  needKwh.textContent = `${neededKwh.toFixed(3)} kWh`;
+  needTime.textContent = seconds <= 0 ? '无需充电' : formatDuration(seconds);
 
-  const calc = calculateChargeTimeToTarget(capacity, currentPercent, power, targetPercent);
-  if (!calc.ok) {
-    showError(calc.message);
-    return;
-  }
-
-  const finishTime = new Date(now.getTime() + calc.seconds * 1000);
-
-  resultBody.innerHTML = `
-    <div class="kv"><div>电池容量</div><div>${capacity.toFixed(2)} kWh</div></div>
-    <div class="kv"><div>当前剩余</div><div>${currentPercent.toFixed(1)} %</div></div>
-    <div class="kv"><div>目标电量</div><div>${targetPercent.toFixed(1)} %</div></div>
-    <div class="kv"><div>需补入</div><div>${calc.neededKwh.toFixed(3)} kWh</div></div>
-    <div class="kv"><div>功率</div><div>${power.toFixed(2)} kW</div></div>
-    <div class="kv"><div>需要时长</div><div>${formatDuration(calc.seconds)}</div></div>
-    <div class="kv"><div>预计达到目标</div><div>${finishTime.toLocaleString('zh-CN', { hour12:false })}</div></div>
+  detailBox.innerHTML = `
+    <div class="kv"><div>电池容量</div><div>${fmt2(capacity)} kWh</div></div>
+    <div class="kv"><div>当前电量</div><div>${fmt1(currentPercent)} %</div></div>
+    <div class="kv"><div>目标电量</div><div>${fmt1(targetPercent)} %</div></div>
+    <div class="kv"><div>当前可开</div><div>${fmtKm(currentRangeKm)}</div></div>
+    <div class="kv"><div>目标可开</div><div>${fmtKm(targetRangeKm)}</div></div>
+    <div class="kv"><div>充电功率</div><div>${fmt2(power)} kW</div></div>
+    <div class="kv"><div>预计到达目标</div><div>${seconds <= 0 ? '无需充电' : finishTime.toLocaleString('zh-CN', { hour12:false })}</div></div>
   `;
-  overlay.style.display = 'flex';
+}
+
+document.getElementById('calcForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  calculate();
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-  currentValue.textContent = formatPercent(currentRange.value);
-  targetValue.textContent = formatPercent(targetRange.value);
+window.addEventListener('load', () => {
+  syncInputs();
+  calculate();
 });
 </script>
 </body>
