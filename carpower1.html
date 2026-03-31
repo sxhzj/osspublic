@@ -334,6 +334,10 @@ button{
 <div id="errorBar" class="errorBar"></div>
 
 <script>
+  function refreshAll() {
+  syncInputs();
+  calculate();
+}
 const capacityInput = document.getElementById('capacity');
 const powerInput = document.getElementById('power');
 const currentInput = document.getElementById('currentInput');
@@ -420,17 +424,21 @@ function syncInputs() {
 
 currentRange.addEventListener('input', function () {
   currentInput.value = this.value;
-  updateSliderLabels();
+  refreshAll();
 });
 
 targetRange.addEventListener('input', function () {
   targetInput.value = this.value;
-  updateSliderLabels();
+  refreshAll();
 });
 
-currentInput.addEventListener('input', syncInputs);
-targetInput.addEventListener('input', syncInputs);
+currentInput.addEventListener('input', refreshAll);
+targetInput.addEventListener('input', refreshAll);
 
+// 这两个你原来没加（很关键）
+capacityInput.addEventListener('input', calculate);
+powerInput.addEventListener('input', calculate);
+  
 function calculate() {
   const capacity = parseFloat(capacityInput.value);
   const power = parseFloat(powerInput.value);
